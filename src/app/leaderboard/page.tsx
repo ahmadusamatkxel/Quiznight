@@ -42,7 +42,7 @@ export default function LeaderboardPage() {
                 <td className="px-5 py-3.5 text-right tabular-nums text-muted">
                   {row.badges}
                 </td>
-                <td className="px-5 py-3.5 text-right font-bold tabular-nums text-primary">
+                <td className="px-5 py-3.5 text-right font-bold tabular-nums text-accent">
                   {row.total}
                 </td>
               </tr>

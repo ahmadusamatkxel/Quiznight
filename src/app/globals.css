@@ -3,8 +3,10 @@
 /* Theme-switchable neutrals (light default, .dark overrides) */
 :root {
   --t-primary-soft: #efe9ff;
+  --t-accent: #642df5; /* readable purple text (lightens in dark) */
   --t-mint-dark: #0e8f6f;
   --t-coral-soft: #fdeef1;
+  --t-coral-text: #c22548; /* readable coral text (lightens in dark) */
   --t-ink: #17141f;
   --t-panel: #1b1725;
   --t-panel-2: #241f31;
@@ -17,8 +19,10 @@
 
 .dark {
   --t-primary-soft: #2b2154;
+  --t-accent: #b6a0ff;
   --t-mint-dark: #5ce8bd;
   --t-coral-soft: #3d1c2a;
+  --t-coral-text: #ff90a6;
   --t-ink: #f2effa;
   --t-panel: #131020;
   --t-panel-2: #241f38;
@@ -35,11 +39,14 @@
   --color-primary-dark: #4f1fd1;
   --color-mint: #8ffce5;
   --color-coral: #e44d6b;
+  --color-coral-deep: #cf2f52; /* darker coral for white text on solid fills */
 
   /* Theme-aware tokens */
   --color-primary-soft: var(--t-primary-soft);
+  --color-accent: var(--t-accent);
   --color-mint-dark: var(--t-mint-dark);
   --color-coral-soft: var(--t-coral-soft);
+  --color-coral-text: var(--t-coral-text);
   --color-ink: var(--t-ink);
   --color-panel: var(--t-panel);
   --color-panel-2: var(--t-panel-2);

@@ -18,7 +18,7 @@ export default function SiteFooter() {
           </a>
         </div>
         <div className="font-bold text-muted">
-          2026 — <span className="text-primary">QuizNight</span>
+          2026 — <span className="text-accent">QuizNight</span>
         </div>
         {/* payment methods (free events, shown for parity) */}
         <div className="flex items-center gap-2 text-xs font-bold text-faint">

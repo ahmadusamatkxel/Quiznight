@@ -8,12 +8,12 @@ import { Sparkles, Trophy, Beer } from "@/components/icons";
 const ACCENT: Record<string, { bar: string; chip: string; icon: React.ReactNode }> = {
   purple: {
     bar: "bg-primary",
-    chip: "bg-primary-soft text-primary",
+    chip: "bg-primary-soft text-accent",
     icon: <Trophy size={18} />,
   },
   coral: {
     bar: "bg-coral",
-    chip: "bg-coral-soft text-coral",
+    chip: "bg-coral-soft text-coral-text",
     icon: <Beer size={18} />,
   },
   mint: {

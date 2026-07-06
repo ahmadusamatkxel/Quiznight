@@ -39,6 +39,12 @@ const STRINGS = {
     continue: "Continue",
     pressEnter: "press",
     signedInAs: "Signed in as",
+    // reserve hero
+    heroTitle1: "Reserve your table",
+    heroTitleAccent: "in under a minute",
+    heroSub:
+      "Monday-night pub quiz, played in teams. Free entry — the winners take bar coupons and prizes.",
+    heroBringTeam: "Bring your team",
     // step 1
     q1: "Which quiz night are you joining?",
     q1Sub: "All upcoming events are free — you reserve a table, not a ticket.",
@@ -204,6 +210,11 @@ const STRINGS = {
     continue: "Tovább",
     pressEnter: "nyomj",
     signedInAs: "Bejelentkezve:",
+    heroTitle1: "Foglalj asztalt",
+    heroTitleAccent: "egy percen belül",
+    heroSub:
+      "Hétfő esti kocsmakvíz, csapatokban. A belépés ingyenes — a győztesek kuponokat és díjakat visznek.",
+    heroBringTeam: "Hozd a csapatod",
     q1: "Melyik kvízestre jöttök?",
     q1Sub: "Minden közelgő esemény ingyenes — asztalt foglalsz, nem jegyet.",
     q2: "Ki játszik?",

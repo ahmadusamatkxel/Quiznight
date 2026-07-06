@@ -7,14 +7,14 @@ import {
   EVENTS,
   MAX_PLAYERS,
   MIN_PLAYERS,
-  USER,
   evDate,
   evDesc,
   evTitle,
 } from "@/lib/data";
 import type { AssistantAction, FlowState } from "@/lib/assistant";
 import { useReservations } from "@/lib/store";
-import { LangSwitch, useLang } from "@/lib/i18n";
+import { useLang } from "@/lib/i18n";
+import AppShell from "@/components/AppShell";
 import AiDrawer from "@/components/AiDrawer";
 import {
   ArrowLeft,
@@ -30,86 +30,6 @@ import {
   Users,
 } from "@/components/icons";
 
-/* ---------- Left panel (Genially-style) ---------- */
-
-function LeftPanel({ state }: { state: FlowState }) {
-  const { lang } = useLang();
-  const ev = EVENTS.find((e) => e.id === state.eventId);
-  const hu = lang === "hu";
-  return (
-    <aside className="relative hidden overflow-hidden bg-panel text-white lg:flex lg:w-[42%] lg:flex-col lg:justify-between lg:p-10">
-      <Link href="/" className="flex w-max items-center gap-2.5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/quiznight-logo.svg"
-          alt="QuizNight logo"
-          width={38}
-          height={38}
-          className="h-9.5 w-9.5"
-        />
-        <span className="display text-lg font-semibold">
-          Quiz<span className="text-coral">Night</span>
-        </span>
-      </Link>
-
-      <div className="relative">
-        <h1 className="display text-4xl font-semibold leading-tight xl:text-5xl">
-          {hu ? (
-            <>
-              Foglalj asztalt{" "}
-              <span className="text-mint">egy percen belül</span>
-            </>
-          ) : (
-            <>
-              Reserve your table{" "}
-              <span className="text-mint">in under a minute</span>
-            </>
-          )}
-        </h1>
-        <p className="mt-4 max-w-sm text-white/60">
-          {hu
-            ? "Hétfő esti kocsmakvíz, csapatokban. A belépés ingyenes — a győztesek kuponokat és díjakat visznek."
-            : "Monday-night pub quiz, played in teams. Free entry — the winners take bar coupons and prizes."}
-        </p>
-
-        {/* floating collage */}
-        <div className="pointer-events-none relative mt-10 h-44" aria-hidden>
-          <div className="float-slow absolute left-0 top-0 w-52 rotate-[-4deg] rounded-2xl bg-panel-2 p-4 shadow-xl">
-            <div className="text-xs font-bold uppercase tracking-wide text-mint">
-              {ev ? evDate(ev, lang) : hu ? "Minden hétfőn" : "Every Monday"}
-            </div>
-            <div className="display mt-1 font-semibold leading-snug">
-              {ev
-                ? evTitle(ev, lang)
-                : hu
-                  ? "Válaszd ki a kvízested"
-                  : "Pick your quiz night"}
-            </div>
-          </div>
-          <div className="float-slower absolute left-44 top-16 rotate-[5deg] rounded-xl bg-coral px-3 py-1.5 text-xs font-bold shadow-lg">
-            {state.teamName
-              ? hu
-                ? `${state.teamName} csapat`
-                : `Team ${state.teamName}`
-              : hu
-                ? "Hozd a csapatod"
-                : "Bring your team"}
-          </div>
-          <div className="float-slow absolute left-24 top-32 rotate-[-6deg] rounded-xl bg-mint px-3 py-1.5 text-xs font-bold text-ink shadow-lg">
-            🏆 25,000 Ft {hu ? "kupon" : "coupon"}
-          </div>
-        </div>
-      </div>
-
-      <div className="text-xs text-white/40">
-        {hu
-          ? "Prototípus · az adatok a quiznight.hu oldalról származnak · ingyenes események"
-          : "Prototype · data mirrored from quiznight.hu · free events"}
-      </div>
-    </aside>
-  );
-}
-
 /* ---------- Step chrome (Tally-style) ---------- */
 
 function Progress({ step }: { step: number }) {
@@ -122,7 +42,7 @@ function Progress({ step }: { step: number }) {
           <div
             className={`pill px-3 py-1 text-xs font-bold transition-colors ${
               i < step
-                ? "bg-mint text-ink"
+                ? "bg-mint text-[#17141f]"
                 : i === step
                   ? "bg-primary text-white"
                   : "bg-line text-muted"
@@ -149,9 +69,9 @@ function Key({ k }: { k: string }) {
 /* ---------- Steps ---------- */
 
 const ACCENT_CHIP: Record<string, string> = {
-  purple: "bg-primary-soft text-primary",
+  purple: "bg-primary-soft text-accent",
   mint: "bg-mint/40 text-mint-dark",
-  coral: "bg-coral-soft text-coral",
+  coral: "bg-coral-soft text-coral-text",
 };
 
 function EventStep({
@@ -242,13 +162,13 @@ function TeamStep({
             className="card-select flex w-full items-center gap-4 rounded-2xl border-2 border-line bg-paper p-4 text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-soft"
           >
             <Key k="A" />
-            <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary-soft font-bold text-primary">
+            <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary-soft font-bold text-accent">
               {team.name[0]}
             </div>
             <div className="flex-1">
               <div className="display text-lg font-semibold">{team.name}</div>
               <div className="mt-0.5 inline-flex items-center gap-1.5 text-sm text-muted">
-                <Crown size={14} className="text-coral" />
+                <Crown size={14} className="text-coral-text" />
                 {team.members[0].name} · {t.yourTeam}
               </div>
             </div>
@@ -266,7 +186,7 @@ function TeamStep({
             className="card-select flex w-full items-center gap-4 rounded-2xl border-2 border-dashed border-line bg-paper p-4 text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-soft"
           >
             <Key k="B" />
-            <div className="grid h-11 w-11 place-items-center rounded-xl bg-coral-soft text-coral">
+            <div className="grid h-11 w-11 place-items-center rounded-xl bg-coral-soft text-coral-text">
               <Plus size={20} />
             </div>
             <div>
@@ -327,12 +247,12 @@ function PlayersStep({
           onClick={() => setPlayers(Math.max(MIN_PLAYERS, state.players - 1))}
           aria-label={t.fewer}
           disabled={state.players <= MIN_PLAYERS}
-          className="grid h-14 w-14 cursor-pointer place-items-center rounded-2xl border-2 border-line bg-paper text-ink transition-colors hover:border-primary hover:text-primary disabled:cursor-default disabled:opacity-30"
+          className="grid h-14 w-14 cursor-pointer place-items-center rounded-2xl border-2 border-line bg-paper text-ink transition-colors hover:border-primary hover:text-accent disabled:cursor-default disabled:opacity-30"
         >
           <Minus size={22} />
         </button>
         <div
-          className="display w-28 text-center text-7xl font-semibold tabular-nums text-primary"
+          className="display w-28 text-center text-7xl font-semibold tabular-nums text-accent"
           aria-live="polite"
         >
           {state.players}
@@ -341,13 +261,13 @@ function PlayersStep({
           onClick={() => setPlayers(Math.min(MAX_PLAYERS, state.players + 1))}
           aria-label={t.more}
           disabled={state.players >= MAX_PLAYERS}
-          className="grid h-14 w-14 cursor-pointer place-items-center rounded-2xl border-2 border-line bg-paper text-ink transition-colors hover:border-primary hover:text-primary disabled:cursor-default disabled:opacity-30"
+          className="grid h-14 w-14 cursor-pointer place-items-center rounded-2xl border-2 border-line bg-paper text-ink transition-colors hover:border-primary hover:text-accent disabled:cursor-default disabled:opacity-30"
         >
           <Plus size={22} />
         </button>
       </div>
 
-      <div className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary-soft px-3.5 py-2 text-sm font-semibold text-primary">
+      <div className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary-soft px-3.5 py-2 text-sm font-semibold text-accent">
         <Users size={16} />
         {state.teamName
           ? `${t.team} ${state.teamName}`
@@ -398,7 +318,7 @@ function ReviewStep({ state }: { state: FlowState }) {
             <div className="display mt-1 font-semibold">
               {state.teamName}
               {state.isNewTeam && (
-                <span className="pill ml-2 bg-coral-soft px-2 py-0.5 text-xs font-bold text-coral">
+                <span className="pill ml-2 bg-coral-soft px-2 py-0.5 text-xs font-bold text-coral-text">
                   {t.newBadge}
                 </span>
               )}
@@ -433,7 +353,7 @@ function DoneStep({ state }: { state: FlowState }) {
   const ev = EVENTS.find((e) => e.id === state.eventId)!;
   return (
     <div className="step-in text-center sm:text-left">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-mint text-ink sm:mx-0">
+      <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-mint text-[#17141f] sm:mx-0">
         <Check size={30} />
       </div>
       <h2 className="display mt-5 text-3xl font-semibold leading-tight sm:text-4xl">
@@ -449,6 +369,30 @@ function DoneStep({ state }: { state: FlowState }) {
         >
           {t.backToDash} <ArrowRight size={17} />
         </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Reserve hero (compact, brand flavour without the layout swap) ---------- */
+
+function ReserveHero() {
+  const { t } = useLang();
+  return (
+    <div className="relative mb-8 overflow-hidden rounded-3xl bg-panel px-6 py-7 text-white sm:px-8">
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="float-slow absolute right-[8%] top-[22%] rotate-[6deg] rounded-xl bg-coral-deep px-3 py-1.5 text-xs font-bold text-white shadow-lg">
+          {t.heroBringTeam}
+        </div>
+        <div className="float-slower absolute bottom-[18%] right-[20%] rotate-[-5deg] rounded-xl bg-mint px-3 py-1.5 text-xs font-bold text-[#17141f] shadow-lg">
+          🏆 25,000 Ft
+        </div>
+      </div>
+      <div className="relative max-w-md">
+        <h1 className="display text-2xl font-semibold leading-tight sm:text-3xl">
+          {t.heroTitle1} <span className="text-mint">{t.heroTitleAccent}</span>
+        </h1>
+        <p className="mt-2 text-sm text-white/60">{t.heroSub}</p>
       </div>
     </div>
   );
@@ -525,91 +469,86 @@ export default function ReservePage() {
   };
 
   return (
-    <div className="flex min-h-dvh">
-      <LeftPanel state={state} />
-
-      <main className="relative flex-1">
-        {/* Top bar */}
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-paper/90 px-5 py-3 backdrop-blur sm:px-10">
-          <div className="flex items-center gap-4">
-            {state.step < 4 && (
-              <button
-                onClick={back}
-                className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-muted transition-colors hover:text-ink"
-              >
-                <ArrowLeft size={16} /> {t.back}
-              </button>
-            )}
-            <div className="hidden sm:block">
-              <Progress step={state.step} />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <LangSwitch />
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="pill inline-flex cursor-pointer items-center gap-2 border-2 border-primary bg-primary-soft px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white"
-            >
-              <Sparkles size={16} /> {t.aiAssist}
-            </button>
-          </div>
-        </div>
-
-        {/* Step body */}
-        <div className="mx-auto max-w-2xl px-5 py-10 sm:px-10 sm:py-14">
-          {state.step === 0 && (
-            <EventStep
-              state={state}
-              pick={(id) => setState((s) => ({ ...s, eventId: id }))}
-            />
-          )}
-          {state.step === 1 && (
-            <TeamStep
-              state={state}
-              pickExisting={(name) =>
-                setState((s) => ({ ...s, teamName: name, isNewTeam: false }))
-              }
-              createNew={(name) =>
-                setState((s) => ({
-                  ...s,
-                  teamName: name,
-                  isNewTeam: true,
-                  step: 2,
-                }))
-              }
-            />
-          )}
-          {state.step === 2 && (
-            <PlayersStep
-              state={state}
-              setPlayers={(n) => setState((s) => ({ ...s, players: n }))}
-            />
-          )}
-          {state.step === 3 && <ReviewStep state={state} />}
-          {state.step === 4 && <DoneStep state={state} />}
-
-          {/* Footer nav */}
+    <AppShell>
+      {/* Wizard toolbar — Back · progress · AI assist (lives in the content, so the shell stays put) */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-4">
           {state.step < 4 && (
-            <div className="mt-10 flex items-center gap-4">
-              <button
-                onClick={next}
-                disabled={!canContinue}
-                className="pill inline-flex cursor-pointer items-center gap-2 bg-ink px-7 py-3.5 font-bold text-white transition-all duration-200 hover:bg-primary disabled:cursor-default disabled:opacity-30"
-              >
-                {state.step === 3 ? t.reserveFree : t.continue}
-                <ArrowRight size={17} />
-              </button>
-              <span className="hidden text-xs font-semibold text-faint sm:block">
-                {t.pressEnter} <strong>Enter ↵</strong>
-              </span>
-            </div>
+            <button
+              onClick={back}
+              className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-muted transition-colors hover:text-ink"
+            >
+              <ArrowLeft size={16} /> {t.back}
+            </button>
           )}
+          <div className="hidden sm:block">
+            <Progress step={state.step} />
+          </div>
         </div>
 
-        {/* Enter key advances */}
-        <EnterKey onEnter={() => canContinue && state.step < 4 && next()} />
-      </main>
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="pill inline-flex cursor-pointer items-center gap-2 border-2 border-primary bg-primary-soft px-4 py-2 text-sm font-bold text-accent transition-colors hover:bg-primary hover:text-white"
+        >
+          <Sparkles size={16} /> {t.aiAssist}
+        </button>
+      </div>
+
+      {state.step === 0 && <ReserveHero />}
+
+      {/* Step body */}
+      <div className="mx-auto max-w-2xl">
+        {state.step === 0 && (
+          <EventStep
+            state={state}
+            pick={(id) => setState((s) => ({ ...s, eventId: id }))}
+          />
+        )}
+        {state.step === 1 && (
+          <TeamStep
+            state={state}
+            pickExisting={(name) =>
+              setState((s) => ({ ...s, teamName: name, isNewTeam: false }))
+            }
+            createNew={(name) =>
+              setState((s) => ({
+                ...s,
+                teamName: name,
+                isNewTeam: true,
+                step: 2,
+              }))
+            }
+          />
+        )}
+        {state.step === 2 && (
+          <PlayersStep
+            state={state}
+            setPlayers={(n) => setState((s) => ({ ...s, players: n }))}
+          />
+        )}
+        {state.step === 3 && <ReviewStep state={state} />}
+        {state.step === 4 && <DoneStep state={state} />}
+
+        {/* Footer nav */}
+        {state.step < 4 && (
+          <div className="mt-10 flex items-center gap-4">
+            <button
+              onClick={next}
+              disabled={!canContinue}
+              className="pill inline-flex cursor-pointer items-center gap-2 bg-ink px-7 py-3.5 font-bold text-paper transition-all duration-200 hover:bg-primary hover:text-white disabled:cursor-default disabled:opacity-30"
+            >
+              {state.step === 3 ? t.reserveFree : t.continue}
+              <ArrowRight size={17} />
+            </button>
+            <span className="hidden text-xs font-semibold text-faint sm:block">
+              {t.pressEnter} <strong>Enter ↵</strong>
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Enter key advances */}
+      <EnterKey onEnter={() => canContinue && state.step < 4 && next()} />
 
       <AiDrawer
         open={drawerOpen}
@@ -617,12 +556,7 @@ export default function ReservePage() {
         state={state}
         dispatch={dispatch}
       />
-
-      {/* Signed-in hint for the demo */}
-      <div className="pointer-events-none fixed bottom-4 left-4 z-20 hidden rounded-xl bg-panel px-3.5 py-2 text-xs font-semibold text-white/70 lg:block">
-        {t.signedInAs} {USER.firstName} · prototype
-      </div>
-    </div>
+    </AppShell>
   );
 }
 

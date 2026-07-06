@@ -57,7 +57,7 @@ function Logo() {
         className="h-9.5 w-9.5"
       />
       <span className="display text-lg font-semibold tracking-tight text-ink">
-        Quiz<span className="text-primary">Night</span>
+        Quiz<span className="text-accent">Night</span>
       </span>
     </Link>
   );
@@ -125,7 +125,7 @@ function SidebarContent({
         })}
       </nav>
       <div className="border-t border-line px-5 py-4">
-        <button className="pill cursor-pointer border border-line px-4 py-2 text-sm font-bold text-muted transition-colors hover:border-coral hover:text-coral">
+        <button className="pill cursor-pointer border border-line px-4 py-2 text-sm font-bold text-muted transition-colors hover:border-coral hover:text-coral-text">
           {t.logout}
         </button>
       </div>

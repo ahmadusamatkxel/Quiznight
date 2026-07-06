@@ -11,7 +11,7 @@ export default function FaqPage() {
     <AppShell>
       <PageHead title={t.faqTitle} sub={t.faqSub} />
 
-      <div className="mb-6 inline-flex items-center gap-2 rounded-xl bg-coral-soft px-3.5 py-2 text-sm font-semibold text-coral">
+      <div className="mb-6 inline-flex items-center gap-2 rounded-xl bg-coral-soft px-3.5 py-2 text-sm font-semibold text-coral-text">
         {t.faqCopyNote}
       </div>
 

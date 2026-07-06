@@ -43,7 +43,7 @@ function TeamCard({ teamId }: { teamId: string }) {
     <section className="overflow-hidden rounded-2xl border border-line bg-paper">
       {/* Header: name + edit/delete */}
       <div className="flex flex-wrap items-center gap-4 border-b border-line px-6 py-5">
-        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary-soft text-xl font-bold text-primary">
+        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary-soft text-xl font-bold text-accent">
           {team.name[0]}
         </div>
         <div className="min-w-0 flex-1">
@@ -107,7 +107,7 @@ function TeamCard({ teamId }: { teamId: string }) {
               }}
               aria-label={t.renameTeam}
               title={t.renameTeam}
-              className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-line text-muted transition-colors hover:border-primary hover:text-primary"
+              className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-line text-muted transition-colors hover:border-primary hover:text-accent"
             >
               <Pencil size={16} />
             </button>
@@ -115,7 +115,7 @@ function TeamCard({ teamId }: { teamId: string }) {
               onClick={() => setConfirmingDelete(true)}
               aria-label={t.deleteTeam}
               title={t.deleteTeam}
-              className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-line text-muted transition-colors hover:border-coral hover:text-coral"
+              className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-line text-muted transition-colors hover:border-coral hover:text-coral-text"
             >
               <Trash size={16} />
             </button>
@@ -126,13 +126,13 @@ function TeamCard({ teamId }: { teamId: string }) {
       {/* Delete confirmation strip */}
       {confirmingDelete && (
         <div className="step-in flex flex-wrap items-center justify-between gap-3 border-b border-line bg-coral-soft px-6 py-4">
-          <span className="text-sm font-bold text-coral">
+          <span className="text-sm font-bold text-coral-text">
             {t.deleteConfirm}
           </span>
           <div className="flex gap-2">
             <button
               onClick={() => deleteTeam(team.id)}
-              className="pill cursor-pointer bg-coral px-4 py-2 text-sm font-bold text-white transition-colors hover:opacity-90"
+              className="pill cursor-pointer bg-coral-deep px-4 py-2 text-sm font-bold text-white transition-colors hover:opacity-90"
             >
               {t.confirmDelete}
             </button>
@@ -159,7 +159,7 @@ function TeamCard({ teamId }: { teamId: string }) {
             >
               <span className="inline-flex items-center gap-2.5 font-semibold">
                 {m.role === "captain" && (
-                  <Crown size={16} className="text-coral" />
+                  <Crown size={16} className="text-coral-text" />
                 )}
                 {m.name}
               </span>
@@ -179,7 +179,7 @@ function TeamCard({ teamId }: { teamId: string }) {
                     onClick={() => removeMember(team.id, m.name)}
                     aria-label={`${t.removeMember}: ${m.name}`}
                     title={t.removeMember}
-                    className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-faint transition-colors hover:bg-coral-soft hover:text-coral"
+                    className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-faint transition-colors hover:bg-coral-soft hover:text-coral-text"
                   >
                     <X size={15} />
                   </button>
@@ -213,7 +213,7 @@ function TeamCard({ teamId }: { teamId: string }) {
           <button
             type="submit"
             disabled={!newMember.trim()}
-            className="pill inline-flex cursor-pointer items-center gap-1.5 border-2 border-primary px-4 text-sm font-bold text-primary transition-colors hover:bg-primary hover:text-white disabled:cursor-default disabled:opacity-40"
+            className="pill inline-flex cursor-pointer items-center gap-1.5 border-2 border-primary px-4 text-sm font-bold text-accent transition-colors hover:bg-primary hover:text-white disabled:cursor-default disabled:opacity-40"
           >
             <Plus size={15} /> {t.addMember}
           </button>
@@ -276,7 +276,7 @@ function CreateTeamCard() {
         onClick={() => setCreating(true)}
         className="card-select flex w-full items-center gap-4 rounded-2xl border-2 border-dashed border-line bg-paper p-5 text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-soft"
       >
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-coral-soft text-coral">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-coral-soft text-coral-text">
           <Plus size={20} />
         </div>
         <div>

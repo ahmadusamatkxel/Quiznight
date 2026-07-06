@@ -40,7 +40,7 @@ export default function TeamsPage() {
               className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-paper px-5 py-3.5"
             >
               <span className="inline-flex min-w-0 items-center gap-3 font-semibold">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary-soft text-sm font-bold text-primary">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary-soft text-sm font-bold text-accent">
                   {team.name[0]}
                 </span>
                 <span className="truncate">{team.name}</span>
@@ -59,7 +59,7 @@ export default function TeamsPage() {
                   className={`pill cursor-pointer px-4 py-2 text-sm font-bold transition-colors ${
                     isRequested
                       ? "bg-mint/40 text-mint-dark"
-                      : "border-2 border-primary text-primary hover:bg-primary hover:text-white"
+                      : "border-2 border-primary text-accent hover:bg-primary hover:text-white"
                   }`}
                 >
                   {isRequested ? t.requested : (

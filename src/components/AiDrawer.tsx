@@ -138,7 +138,7 @@ export default function AiDrawer({
               onClick={() => setMode(m)}
               className={`pill inline-flex cursor-pointer items-center gap-1.5 px-4 py-1.5 text-sm font-bold transition-colors ${
                 mode === m
-                  ? "bg-ink text-white"
+                  ? "bg-ink text-paper"
                   : "text-muted hover:bg-bg hover:text-ink"
               }`}
               aria-pressed={mode === m}
@@ -179,7 +179,7 @@ export default function AiDrawer({
               <button
                 key={c}
                 onClick={() => send(c)}
-                className="pill cursor-pointer border border-line bg-paper px-3.5 py-1.5 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary-soft"
+                className="pill cursor-pointer border border-line bg-paper px-3.5 py-1.5 text-sm font-semibold text-accent transition-colors hover:border-primary hover:bg-primary-soft"
               >
                 {c}
               </button>

@@ -20,9 +20,9 @@ import {
 function Explainer() {
   const { t } = useLang();
   const items = [
-    { icon: <Sparkles size={20} />, title: t.whatIsTitle, body: t.whatIsBody, cls: "bg-primary-soft text-primary" },
+    { icon: <Sparkles size={20} />, title: t.whatIsTitle, body: t.whatIsBody, cls: "bg-primary-soft text-accent" },
     { icon: <Trophy size={20} />, title: t.champTitle, body: t.champBody, cls: "bg-mint/40 text-mint-dark" },
-    { icon: <Crown size={20} />, title: t.reserveStepTitle, body: t.reserveStepBody, cls: "bg-coral-soft text-coral" },
+    { icon: <Crown size={20} />, title: t.reserveStepTitle, body: t.reserveStepBody, cls: "bg-coral-soft text-coral-text" },
   ];
   return (
     <section className="mt-12">
@@ -52,7 +52,7 @@ function EmptyState() {
         <div className="float-slow absolute left-[8%] top-[18%] rotate-[-8deg] rounded-xl bg-primary px-3 py-1.5 text-xs font-bold">
           Round 26
         </div>
-        <div className="float-slower absolute right-[10%] top-[22%] rotate-[6deg] rounded-xl bg-coral px-3 py-1.5 text-xs font-bold">
+        <div className="float-slower absolute right-[10%] top-[22%] rotate-[6deg] rounded-xl bg-coral-deep px-3 py-1.5 text-xs font-bold text-white">
           🥇 25,000 Ft
         </div>
         <div className="float-slow absolute bottom-[20%] right-[16%] rotate-[-5deg] rounded-xl bg-mint px-3 py-1.5 text-xs font-bold text-[#17141f]">
@@ -85,7 +85,7 @@ function EmptyState() {
 const ACCENT_BG: Record<string, string> = {
   purple: "bg-primary text-white",
   mint: "bg-mint text-[#17141f]",
-  coral: "bg-coral text-white",
+  coral: "bg-coral-deep text-white",
 };
 
 function ReservationList() {
@@ -186,7 +186,7 @@ export default function Dashboard() {
               key={ev.id}
               className="rounded-2xl border border-line bg-paper p-4"
             >
-              <div className="text-xs font-bold uppercase tracking-wide text-primary">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent">
                 {evDate(ev, lang)}
               </div>
               <div className="display mt-1 font-semibold leading-snug">
