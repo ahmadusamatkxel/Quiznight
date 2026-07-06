@@ -150,12 +150,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh lg:flex">
-      {/* Desktop sidebar (collapsible) */}
-      {desktopOpen && (
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 border-r border-line bg-paper lg:block">
-          <SidebarContent onClose={() => setDesktopOpen(false)} />
-        </aside>
-      )}
+      {/* Desktop sidebar — collapses by animating width, so the content
+          glides to its new position instead of snapping. Toggled only by
+          the header hamburger (single, non-redundant control). */}
+      <aside
+        aria-hidden={!desktopOpen}
+        className={`sticky top-0 hidden h-dvh shrink-0 overflow-hidden bg-paper transition-[width] duration-300 ease-in-out lg:block ${
+          desktopOpen ? "w-64 border-r border-line" : "w-0 border-r-0"
+        }`}
+      >
+        <div className="h-full w-64">
+          <SidebarContent />
+        </div>
+      </aside>
 
       {/* Mobile sheet */}
       {mobileOpen && (

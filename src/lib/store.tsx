@@ -21,6 +21,7 @@ export type Reservation = {
 type Store = {
   reservations: Reservation[];
   addReservation: (r: Omit<Reservation, "id" | "createdAt">) => Reservation;
+  removeReservation: (id: string) => void;
   clearReservations: () => void;
   eventById: (id: string) => QuizEvent | undefined;
   reservedEventIds: string[];
@@ -151,6 +152,10 @@ export function ReservationProvider({
     []
   );
 
+  const removeReservation = useCallback((id: string) => {
+    setReservations((prev) => prev.filter((r) => r.id !== id));
+  }, []);
+
   const clearReservations = useCallback(() => setReservations([]), []);
 
   const eventById = useCallback(
@@ -163,6 +168,7 @@ export function ReservationProvider({
       value={{
         reservations,
         addReservation,
+        removeReservation,
         clearReservations,
         eventById,
         reservedEventIds: reservations.map((r) => r.eventId),

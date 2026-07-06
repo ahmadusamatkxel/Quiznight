@@ -1,14 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { AssistantAction, FlowState } from "@/lib/assistant";
-import { greeting, quickChips, respond, voiceUtterance } from "@/lib/assistant";
+import { usePathname } from "next/navigation";
+import { useAssistant } from "@/lib/assistant-context";
+import { platformChips, platformVoiceUtterance } from "@/lib/assistant-platform";
+import { EVENTS, evDate, evTitle } from "@/lib/data";
 import { useLang } from "@/lib/i18n";
-import { MessageCircle, Mic, Send, Sparkles, X } from "./icons";
+import {
+  Calendar,
+  Check,
+  MapPin,
+  MessageCircle,
+  Mic,
+  Send,
+  Sparkles,
+  Users,
+  X,
+} from "./icons";
 
-type Msg = { role: "user" | "ai"; text: string };
-
-/** Render **bold** / *italic* minimally without an md dependency */
+/** Minimal **bold** / *italic* renderer (no markdown dependency). */
 function Rich({ text }: { text: string }) {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
   return (
@@ -26,31 +36,25 @@ function Rich({ text }: { text: string }) {
   );
 }
 
-export default function AiDrawer({
-  open,
-  onClose,
-  state,
-  dispatch,
-}: {
-  open: boolean;
-  onClose: () => void;
-  state: FlowState;
-  dispatch: (actions: AssistantAction[]) => void;
-}) {
+export default function AssistantDrawer() {
+  const {
+    open,
+    msgs,
+    thinking,
+    pending,
+    lastBooking,
+    closeAssistant,
+    send,
+    confirmPending,
+    cancelPending,
+    undoLast,
+  } = useAssistant();
   const { lang, t } = useLang();
+  const pathname = usePathname();
   const [mode, setMode] = useState<"chat" | "voice">("chat");
-  const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
-  const [thinking, setThinking] = useState(false);
   const [listening, setListening] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
-
-  // Greeting in the active language on first open
-  useEffect(() => {
-    if (open && msgs.length === 0) {
-      setMsgs([{ role: "ai", text: greeting(lang) }]);
-    }
-  }, [open, msgs.length, lang]);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: 99999, behavior: "smooth" });
@@ -58,38 +62,28 @@ export default function AiDrawer({
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeAssistant();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, closeAssistant]);
 
-  function send(text: string) {
-    const clean = text.trim();
-    if (!clean || thinking) return;
-    setMsgs((m) => [...m, { role: "user", text: clean }]);
+  function submit(text: string) {
+    if (!text.trim() || thinking) return;
+    send(text);
     setInput("");
-    setThinking(true);
-    // Scripted agent — small delay to feel conversational
-    setTimeout(() => {
-      const turn = respond(clean, state, lang);
-      dispatch(turn.actions);
-      setMsgs((m) => [...m, { role: "ai", text: turn.reply }]);
-      setThinking(false);
-    }, 650);
   }
 
   function pressMic() {
     if (listening || thinking) return;
     setListening(true);
-    // Simulated voice: after a short "listening" phase, a canned utterance
-    // relevant to the current step is transcribed and processed.
     setTimeout(() => {
       setListening(false);
-      send(voiceUtterance(state, lang));
+      send(platformVoiceUtterance(lang));
     }, 1800);
   }
 
-  const chips = quickChips(state.step, lang);
+  const chips = platformChips(pathname, lang);
+  const pendingEvent = pending ? EVENTS.find((e) => e.id === pending.eventId) : null;
 
   return (
     <div
@@ -98,7 +92,7 @@ export default function AiDrawer({
     >
       {/* Scrim */}
       <div
-        onClick={onClose}
+        onClick={closeAssistant}
         className={`absolute inset-0 bg-ink/50 transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
       />
 
@@ -122,7 +116,7 @@ export default function AiDrawer({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={closeAssistant}
             aria-label={t.closeAssistant}
             className="grid h-10 w-10 cursor-pointer place-items-center rounded-full text-muted transition-colors hover:bg-bg hover:text-ink"
           >
@@ -172,19 +166,94 @@ export default function AiDrawer({
           )}
         </div>
 
-        {/* Quick chips */}
-        {chips.length > 0 && (
-          <div className="flex flex-wrap gap-2 px-5 pb-2">
-            {chips.map((c) => (
-              <button
-                key={c}
-                onClick={() => send(c)}
-                className="pill cursor-pointer border border-line bg-paper px-3.5 py-1.5 text-sm font-semibold text-accent transition-colors hover:border-primary hover:bg-primary-soft"
-              >
-                {c}
-              </button>
-            ))}
+        {/* Booking confirm card (Verification pattern) — nothing is saved until Confirm */}
+        {pending && pendingEvent ? (
+          <div className="border-t border-line px-5 py-4">
+            <div className="rounded-2xl border-2 border-primary bg-primary-soft/50 p-4">
+              <div className="text-xs font-bold uppercase tracking-wide text-accent">
+                {t.reviewBooking}
+              </div>
+              <div className="display mt-1 text-base font-semibold leading-snug">
+                {evTitle(pendingEvent, lang)}
+              </div>
+              <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar size={14} /> {evDate(pendingEvent, lang)}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin size={14} /> {pendingEvent.venue}
+                </span>
+              </div>
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 text-sm">
+                <span className="pill inline-flex items-center gap-1.5 bg-paper px-2.5 py-1 font-semibold">
+                  {pending.teamName}
+                  {pending.isNewTeam && (
+                    <span className="pill bg-coral-soft px-1.5 text-[10px] font-bold uppercase text-coral-text">
+                      {t.newBadge}
+                    </span>
+                  )}
+                </span>
+                <span className="pill inline-flex items-center gap-1.5 bg-paper px-2.5 py-1 font-semibold">
+                  <Users size={13} /> {pending.players}{" "}
+                  {pending.players > 1 ? t.players : t.player}
+                </span>
+                <span className="pill bg-mint/50 px-2.5 py-1 font-bold text-mint-dark">
+                  {t.free}
+                </span>
+              </div>
+              {pending.isNewTeam && (
+                <div className="mt-2 text-xs text-muted">{t.assistantWillCreate}</div>
+              )}
+              <div className="mt-3 flex gap-2">
+                <button
+                  onClick={confirmPending}
+                  className="pill inline-flex flex-1 cursor-pointer items-center justify-center gap-2 bg-primary px-4 py-2.5 font-bold text-white transition-colors hover:bg-primary-dark"
+                >
+                  <Check size={16} /> {t.assistantConfirm}
+                </button>
+                <button
+                  onClick={cancelPending}
+                  className="pill cursor-pointer border border-line bg-paper px-4 py-2.5 font-bold text-muted transition-colors hover:text-ink"
+                >
+                  {t.cancel}
+                </button>
+              </div>
+            </div>
           </div>
+        ) : (
+          <>
+            {/* Footprint — confirmed action with an undo handle */}
+            {lastBooking && (
+              <div className="border-t border-line px-5 py-3">
+                <div className="flex items-center justify-between gap-3 rounded-xl bg-mint/30 px-3.5 py-2.5">
+                  <span className="inline-flex items-center gap-2 text-sm font-bold text-mint-dark">
+                    <Check size={15} /> {t.booked}
+                  </span>
+                  <button
+                    onClick={undoLast}
+                    className="pill cursor-pointer border border-mint-dark/40 px-3 py-1 text-xs font-bold text-mint-dark transition-colors hover:bg-mint/40"
+                  >
+                    {t.undo}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Quick chips (Wayfinders) */}
+            {chips.length > 0 && (
+              <div className="flex flex-wrap gap-2 px-5 pb-2 pt-2">
+                {chips.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => submit(c)}
+                    className="pill cursor-pointer border border-line bg-paper px-3.5 py-1.5 text-sm font-semibold text-accent transition-colors hover:border-primary hover:bg-primary-soft"
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {/* Input area */}
@@ -192,18 +261,18 @@ export default function AiDrawer({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              send(input);
+              submit(input);
             }}
             className="flex items-center gap-2 border-t border-line px-4 py-3.5"
           >
-            <label htmlFor="ai-input" className="sr-only">
+            <label htmlFor="assistant-input" className="sr-only">
               {t.send}
             </label>
             <input
-              id="ai-input"
+              id="assistant-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={t.inputPlaceholder}
+              placeholder={t.assistantPlaceholder}
               className="h-11 flex-1 rounded-xl border border-line bg-bg px-3.5 text-[15px] outline-none transition-colors focus:border-primary"
             />
             <button
@@ -219,7 +288,7 @@ export default function AiDrawer({
           <div className="border-t border-line px-5 py-6 text-center">
             <button
               onClick={pressMic}
-              aria-label={listening ? t.listening : t.pressMic}
+              aria-label={listening ? t.listening : t.assistantVoicePrompt}
               className={`mx-auto grid h-20 w-20 cursor-pointer place-items-center rounded-full text-white transition-transform active:scale-95 ${
                 listening ? "mic-pulse bg-coral" : "bg-primary hover:bg-primary-dark"
               }`}
@@ -227,9 +296,9 @@ export default function AiDrawer({
               <Mic size={30} />
             </button>
             <div className="mt-3 text-sm font-semibold text-muted" aria-live="polite">
-              {listening ? t.listening : t.pressMic}
+              {listening ? t.listening : t.assistantVoicePrompt}
             </div>
-            <div className="mt-1 text-xs text-faint">{t.voiceNote}</div>
+            <div className="mt-1 text-xs text-faint">{t.assistantVoiceNote}</div>
           </div>
         )}
       </aside>

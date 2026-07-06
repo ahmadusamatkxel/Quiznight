@@ -97,6 +97,19 @@ const STRINGS = {
     voiceNote:
       "Voice is simulated in this demo — pressing the mic “hears” a sample request for the current step.",
     closeAssistant: "Close assistant",
+    openAssistant: "Open assistant",
+    assistantPlaceholder: 'Ask anything — e.g. “take me to the leaderboard”',
+    assistantVoicePrompt: "Press the mic and ask",
+    assistantVoiceNote:
+      "Voice is simulated in this demo — pressing the mic “hears” a sample question.",
+    reviewBooking: "Review your booking",
+    assistantConfirm: "Confirm",
+    assistantWillCreate: "I'll create this team first.",
+    booked: "Table booked",
+    undo: "Undo",
+    aiNudge: "In a hurry? Ask me to book it — try",
+    aiNudgeExample: "“Book the A38 quiz for Dexx, 4 of us.”",
+    aiNudgeDismiss: "Dismiss",
     send: "Send message",
     langReviewNote: "",
     // sidebar nav (labels mirror the live app)
@@ -265,6 +278,19 @@ const STRINGS = {
     voiceNote:
       "A hang ebben a demóban szimulált — a mikrofon egy mintakérést „hall” az aktuális lépéshez.",
     closeAssistant: "Asszisztens bezárása",
+    openAssistant: "Asszisztens megnyitása",
+    assistantPlaceholder: 'Kérdezz bármit — pl. „vigyél a toplistára”',
+    assistantVoicePrompt: "Nyomd meg a mikrofont és kérdezz",
+    assistantVoiceNote:
+      "A hang ebben a demóban szimulált — a mikrofon egy mintakérdést „hall”.",
+    reviewBooking: "Foglalás áttekintése",
+    assistantConfirm: "Megerősítés",
+    assistantWillCreate: "Előbb létrehozom ezt a csapatot.",
+    booked: "Asztal lefoglalva",
+    undo: "Visszavonás",
+    aiNudge: "Sietsz? Kérd, hogy foglaljam le — próbáld:",
+    aiNudgeExample: "„Foglalj az A38 kvízre a Dexxnek, négyen leszünk.”",
+    aiNudgeDismiss: "Elvetés",
     send: "Üzenet küldése",
     langReviewNote: "A magyar szövegek demó célra készültek.",
     // sidebar nav (labels mirror the live app)

@@ -4,6 +4,9 @@ import "./globals.css";
 import { ReservationProvider } from "@/lib/store";
 import { LangProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme";
+import { AssistantProvider } from "@/lib/assistant-context";
+import AssistantDrawer from "@/components/AssistantDrawer";
+import AssistantLauncher from "@/components/AssistantLauncher";
 
 const fredoka = Fredoka({
   variable: "--font-fredoka",
@@ -31,7 +34,13 @@ export default function RootLayout({
       <body className="min-h-full antialiased">
         <ThemeProvider>
           <LangProvider>
-            <ReservationProvider>{children}</ReservationProvider>
+            <ReservationProvider>
+              <AssistantProvider>
+                {children}
+                <AssistantLauncher />
+                <AssistantDrawer />
+              </AssistantProvider>
+            </ReservationProvider>
           </LangProvider>
         </ThemeProvider>
       </body>

@@ -18,11 +18,11 @@ import {
   evDesc,
   evTitle,
 } from "@/lib/data";
-import type { AssistantAction, FlowState } from "@/lib/assistant";
+import type { FlowState } from "@/lib/assistant";
 import { useReservations } from "@/lib/store";
 import { useLang } from "@/lib/i18n";
 import AppShell from "@/components/AppShell";
-import AiDrawer from "@/components/AiDrawer";
+import AiBookNudge from "@/components/AiBookNudge";
 import {
   ArrowLeft,
   ArrowRight,
@@ -32,7 +32,6 @@ import {
   MapPin,
   Minus,
   Plus,
-  Sparkles,
   Trophy,
   Users,
 } from "@/components/icons";
@@ -411,7 +410,6 @@ function ReserveFlow({ initialEventId }: { initialEventId: string | null }) {
   const router = useRouter();
   const { t } = useLang();
   const { addReservation, createTeam } = useReservations();
-  const [drawerOpen, setDrawerOpen] = useState(false);
   // When an event is chosen on the Discover page, skip the event step.
   const preselected = EVENTS.some((e) => e.id === initialEventId)
     ? initialEventId
@@ -441,29 +439,6 @@ function ReserveFlow({ initialEventId }: { initialEventId: string | null }) {
       });
     },
     [addReservation, createTeam]
-  );
-
-  const dispatch = useCallback(
-    (actions: AssistantAction[]) => {
-      setState((prev) => {
-        let next = { ...prev };
-        for (const a of actions) {
-          if (a.type === "selectEvent") next.eventId = a.eventId;
-          if (a.type === "selectTeam") {
-            next.teamName = a.name;
-            next.isNewTeam = a.isNew;
-          }
-          if (a.type === "setPlayers") next.players = a.players;
-          if (a.type === "goToStep") next.step = a.step;
-          if (a.type === "confirm") {
-            confirm(next);
-            next = { ...next, step: 4 };
-          }
-        }
-        return next;
-      });
-    },
-    [confirm]
   );
 
   const next = () => {
@@ -497,14 +472,9 @@ function ReserveFlow({ initialEventId }: { initialEventId: string | null }) {
             <Progress step={state.step} />
           </div>
         </div>
-
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="pill inline-flex cursor-pointer items-center gap-2 border-2 border-primary bg-primary-soft px-4 py-2 text-sm font-bold text-accent transition-colors hover:bg-primary hover:text-white"
-        >
-          <Sparkles size={16} /> {t.aiAssist}
-        </button>
       </div>
+
+      {state.step < 4 && <AiBookNudge />}
 
       {state.step === 0 && <ReserveHero />}
 
@@ -561,13 +531,6 @@ function ReserveFlow({ initialEventId }: { initialEventId: string | null }) {
 
       {/* Enter key advances */}
       <EnterKey onEnter={() => canContinue && state.step < 4 && next()} />
-
-      <AiDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        state={state}
-        dispatch={dispatch}
-      />
     </AppShell>
   );
 }
