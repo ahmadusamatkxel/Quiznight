@@ -9,7 +9,7 @@ import { USER } from "@/lib/data";
 import SiteFooter from "./SiteFooter";
 import {
   Beer,
-  Calendar,
+  Compass,
   Check,
   Crown,
   MessageCircle,
@@ -30,7 +30,7 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { key: "navHome", href: "/", icon: <Beer size={17} /> },
-  { key: "navEvents", href: "/reserve", icon: <Calendar size={17} /> },
+  { key: "navEvents", href: "/discover", icon: <Compass size={17} /> },
   { key: "navMyTeam", href: "/team", icon: <Crown size={17} /> },
   { key: "navTeams", href: "/teams", icon: <Users size={17} /> },
   { key: "navLeaderboard", href: "/leaderboard", icon: <Trophy size={17} /> },
@@ -90,7 +90,9 @@ function SidebarContent({
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-4">
         {NAV.map((item) => {
           const label = t[item.key] as string;
-          const active = item.href === pathname;
+          const active =
+            item.href === pathname ||
+            (item.href === "/discover" && pathname === "/reserve");
           if (item.soon) {
             return (
               <div

@@ -1,8 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   EVENTS,
   MAX_PLAYERS,
@@ -400,14 +407,18 @@ function ReserveHero() {
 
 /* ---------- Page ---------- */
 
-export default function ReservePage() {
+function ReserveFlow({ initialEventId }: { initialEventId: string | null }) {
   const router = useRouter();
   const { t } = useLang();
   const { addReservation, createTeam } = useReservations();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // When an event is chosen on the Discover page, skip the event step.
+  const preselected = EVENTS.some((e) => e.id === initialEventId)
+    ? initialEventId
+    : null;
   const [state, setState] = useState<FlowState>({
-    step: 0,
-    eventId: null,
+    step: preselected ? 1 : 0,
+    eventId: preselected,
     teamName: null,
     isNewTeam: false,
     players: 4,
@@ -464,7 +475,8 @@ export default function ReservePage() {
     }
   };
   const back = () => {
-    if (state.step === 0) router.push("/");
+    // Steps 0 (event) and 1 (team) return to the Discover list to change event.
+    if (state.step <= 1) router.push("/discover");
     else setState((s) => ({ ...s, step: Math.max(0, s.step - 1) }));
   };
 
@@ -557,6 +569,19 @@ export default function ReservePage() {
         dispatch={dispatch}
       />
     </AppShell>
+  );
+}
+
+function ReserveFlowWithParams() {
+  const params = useSearchParams();
+  return <ReserveFlow initialEventId={params.get("event")} />;
+}
+
+export default function ReservePage() {
+  return (
+    <Suspense fallback={null}>
+      <ReserveFlowWithParams />
+    </Suspense>
   );
 }
 

@@ -72,7 +72,7 @@ function EmptyState() {
         </h2>
         <p className="mx-auto mt-3 max-w-md text-white/70">{t.emptySub}</p>
         <Link
-          href="/reserve"
+          href="/discover"
           className="pill mt-8 inline-flex cursor-pointer items-center gap-2 bg-primary px-7 py-3.5 font-bold text-white transition-colors duration-200 hover:bg-primary-dark focus:outline-none focus-visible:ring-4 focus-visible:ring-mint"
         >
           {t.reserveCta} <ArrowRight size={18} />
@@ -137,7 +137,7 @@ function ReservationList() {
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <Link
-          href="/reserve"
+          href="/discover"
           className="pill inline-flex cursor-pointer items-center gap-2 bg-primary px-6 py-3 font-bold text-white transition-colors duration-200 hover:bg-primary-dark focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-soft"
         >
           {t.reserveAnother} <ArrowRight size={17} />
@@ -182,9 +182,10 @@ export default function Dashboard() {
         <h2 className="display mb-4 text-xl font-semibold">{t.upcoming}</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           {EVENTS.map((ev) => (
-            <div
+            <Link
               key={ev.id}
-              className="rounded-2xl border border-line bg-paper p-4"
+              href={`/reserve?event=${ev.id}`}
+              className="block rounded-2xl border border-line bg-paper p-4 transition-colors hover:border-primary"
             >
               <div className="text-xs font-bold uppercase tracking-wide text-accent">
                 {evDate(ev, lang)}
@@ -195,7 +196,7 @@ export default function Dashboard() {
               <div className="mt-1.5 inline-flex items-center gap-1.5 text-sm text-muted">
                 <MapPin size={14} /> {ev.venue} · {t.free}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

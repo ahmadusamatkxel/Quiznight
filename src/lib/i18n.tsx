@@ -39,6 +39,11 @@ const STRINGS = {
     continue: "Continue",
     pressEnter: "press",
     signedInAs: "Signed in as",
+    // discover page
+    discoverTitle: "Discover events",
+    discoverSub:
+      "Browse the upcoming quiz nights near you and reserve your table — every game is free to join.",
+    discoverAvailable: "Available quiz nights",
     // reserve hero
     heroTitle1: "Reserve your table",
     heroTitleAccent: "in under a minute",
@@ -103,7 +108,7 @@ const STRINGS = {
     navMyTeam: "My team",
     navTeams: "Teams",
     navProducts: "Products",
-    navEvents: "Events / Locations",
+    navEvents: "Discover",
     navBadges: "Badges",
     navQuestion: "Submit a question",
     navPoints: "Point top-up",
@@ -210,6 +215,10 @@ const STRINGS = {
     continue: "Tovább",
     pressEnter: "nyomj",
     signedInAs: "Bejelentkezve:",
+    discoverTitle: "Események felfedezése",
+    discoverSub:
+      "Böngészd a közelgő kvízesteket a környékeden, és foglalj asztalt — minden játék ingyenes.",
+    discoverAvailable: "Elérhető kvízestek",
     heroTitle1: "Foglalj asztalt",
     heroTitleAccent: "egy percen belül",
     heroSub:
@@ -267,7 +276,7 @@ const STRINGS = {
     navMyTeam: "Csapatom",
     navTeams: "Csapatok",
     navProducts: "Termékek",
-    navEvents: "Események / Helyszínek",
+    navEvents: "Felfedezés",
     navBadges: "Jelvények",
     navQuestion: "Kérdés beküldése",
     navPoints: "Pont feltöltés",

@@ -152,3 +152,24 @@ export const Wand = (p: P) => (
     <path d="m3 21 9-9" />
   </svg>
 );
+
+export const Compass = (p: P) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="m16.2 7.8-2.9 6.3-6.3 2.9 2.9-6.3 6.3-2.9z" />
+  </svg>
+);
+
+export const Instagram = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="2" y="2" width="20" height="20" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <path d="M17.5 6.5h.01" />
+  </svg>
+);
+
+export const Facebook = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
