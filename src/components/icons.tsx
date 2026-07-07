@@ -192,6 +192,14 @@ export const Instagram = (p: P) => (
   </svg>
 );
 
+export const LinkIcon = (p: P) => (
+  <svg {...base(p)}>
+    <path d="M9 15 15 9" />
+    <path d="M11 6l1-1a4 4 0 1 1 5.66 5.66l-1 1" />
+    <path d="M13 18l-1 1a4 4 0 1 1-5.66-5.66l1-1" />
+  </svg>
+);
+
 export const Facebook = (p: P) => (
   <svg {...base(p)}>
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />

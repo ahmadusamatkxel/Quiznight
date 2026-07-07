@@ -12,6 +12,7 @@ import {
   Beer,
   Compass,
   Check,
+  LinkIcon,
   MessageCircle,
   Newspaper,
   Ticket,
@@ -95,7 +96,7 @@ function RoleSwitch() {
   );
 }
 
-function Logo() {
+export function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2.5">
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -176,7 +177,14 @@ function SidebarContent({
           );
         })}
       </nav>
-      <div className="border-t border-line px-5 py-4">
+      <div className="space-y-2 border-t border-line px-5 py-4">
+        <Link
+          href="/join/guest?demo=1"
+          onClick={onNavigate}
+          className="pill flex cursor-pointer items-center gap-1.5 border border-dashed border-line px-4 py-2 text-xs font-bold text-faint transition-colors hover:border-primary hover:text-accent"
+        >
+          <LinkIcon size={14} /> {t.demoGuestJoin}
+        </Link>
         <button className="pill cursor-pointer border border-line px-4 py-2 text-sm font-bold text-muted transition-colors hover:border-coral hover:text-coral-text">
           {t.logout}
         </button>
@@ -285,11 +293,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function PageHead({ title, sub }: { title: string; sub: string }) {
+export function PageHead({
+  title,
+  sub,
+  action,
+}: {
+  title: string;
+  sub: string;
+  action?: React.ReactNode;
+}) {
   return (
-    <div className="mb-7">
-      <h1 className="display text-3xl font-semibold tracking-tight">{title}</h1>
-      <p className="mt-1.5 text-muted">{sub}</p>
+    <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h1 className="display text-3xl font-semibold tracking-tight">{title}</h1>
+        <p className="mt-1.5 text-muted">{sub}</p>
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 }

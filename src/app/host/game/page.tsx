@@ -1,59 +1,21 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useHost, type GameTeam, type HostGame } from "@/lib/host";
 import { useLang } from "@/lib/i18n";
 import AppShell, { PageHead } from "@/components/AppShell";
+import { CopyButton, InviteLinkBlock, printQR, useOrigin } from "@/components/InviteLink";
 import {
   ArrowLeft,
-  Check,
   Crown,
-  MapPin,
   Plus,
   Trash,
   Users,
   X,
 } from "@/components/icons";
-
-function useOrigin() {
-  const [origin, setOrigin] = useState("");
-  useEffect(() => setOrigin(window.location.origin), []);
-  return origin;
-}
-
-function printQR(elId: string, title: string, link: string) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  const w = window.open("", "_blank", "width=440,height=580");
-  if (!w) return;
-  w.document.write(
-    `<!doctype html><title>${title}</title><body style="margin:0;font-family:system-ui,sans-serif;text-align:center;padding:40px">${el.outerHTML}<h2 style="margin:20px 0 6px">${title}</h2><p style="color:#666;font-size:12px;word-break:break-all">${link}</p></body>`
-  );
-  w.document.close();
-  w.focus();
-  setTimeout(() => w.print(), 250);
-}
-
-function CopyButton({ text }: { text: string }) {
-  const { t } = useLang();
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        navigator.clipboard?.writeText(text);
-        setDone(true);
-        setTimeout(() => setDone(false), 1500);
-      }}
-      className="pill cursor-pointer border border-line bg-paper px-4 py-2.5 text-sm font-bold text-muted transition-colors hover:border-primary hover:text-accent"
-    >
-      {done ? t.copied : t.copyLink}
-    </button>
-  );
-}
 
 /* ---------- one registered team ---------- */
 
@@ -97,6 +59,11 @@ function TeamCard({ game, team, origin }: { game: HostGame; team: GameTeam; orig
                 <Crown size={15} className="shrink-0 text-coral-text" />
               )}
               <span className="truncate">{m.name}</span>
+              {m.via === "guest" && (
+                <span className="pill shrink-0 bg-line px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">
+                  {t.guestMemberBadge}
+                </span>
+              )}
             </span>
             <span className="flex shrink-0 items-center gap-2">
               {m.role === "captain" ? (
@@ -154,29 +121,12 @@ function TeamCard({ game, team, origin }: { game: HostGame; team: GameTeam; orig
       </form>
 
       {/* team invite link + QR */}
-      <div className="mt-4 rounded-xl border border-dashed border-line p-4">
-        <div className="text-xs font-bold uppercase tracking-wide text-faint">
-          {t.teamInviteLink}
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <div className="rounded-lg bg-white p-1.5">
-            <QRCodeSVG id={qrId} value={inviteLink || "https://quiznight.hu"} size={72} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm text-muted">{inviteLink}</div>
-            <div className="mt-2 flex gap-2">
-              <CopyButton text={inviteLink} />
-              <button
-                onClick={() => printQR(qrId, team.name, inviteLink)}
-                className="pill cursor-pointer border border-line bg-paper px-4 py-2.5 text-sm font-bold text-muted transition-colors hover:border-primary hover:text-accent"
-              >
-                {t.printQr}
-              </button>
-            </div>
-          </div>
-        </div>
-        <p className="mt-2 text-xs text-faint">{t.teamInviteHint}</p>
-      </div>
+      <InviteLinkBlock
+        id={qrId}
+        title={t.teamInviteLink}
+        link={inviteLink}
+        hint={t.teamInviteHint}
+      />
     </div>
   );
 }

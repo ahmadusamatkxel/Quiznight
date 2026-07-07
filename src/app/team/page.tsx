@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { QRCodeSVG } from "qrcode.react";
 import { LEADERBOARD, evDate, evTitle } from "@/lib/data";
 import { useReservations } from "@/lib/store";
 import { useLang } from "@/lib/i18n";
 import AppShell, { PageHead } from "@/components/AppShell";
+import { InviteLinkBlock, useOrigin } from "@/components/InviteLink";
+import JoinByCode from "@/components/JoinByCode";
 import {
   ArrowRight,
   Calendar,
@@ -20,43 +21,6 @@ import {
   Users,
   X,
 } from "@/components/icons";
-
-function useOrigin() {
-  const [origin, setOrigin] = useState("");
-  useEffect(() => setOrigin(window.location.origin), []);
-  return origin;
-}
-
-function printQR(elId: string, title: string, link: string) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  const w = window.open("", "_blank", "width=440,height=580");
-  if (!w) return;
-  w.document.write(
-    `<!doctype html><title>${title}</title><body style="margin:0;font-family:system-ui,sans-serif;text-align:center;padding:40px">${el.outerHTML}<h2 style="margin:20px 0 6px">${title}</h2><p style="color:#666;font-size:12px;word-break:break-all">${link}</p></body>`
-  );
-  w.document.close();
-  w.focus();
-  setTimeout(() => w.print(), 250);
-}
-
-function CopyButton({ text }: { text: string }) {
-  const { t } = useLang();
-  const [done, setDone] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        navigator.clipboard?.writeText(text);
-        setDone(true);
-        setTimeout(() => setDone(false), 1500);
-      }}
-      className="pill cursor-pointer border border-line bg-paper px-4 py-2 text-sm font-bold text-muted transition-colors hover:border-primary hover:text-accent"
-    >
-      {done ? t.copied : t.copyLink}
-    </button>
-  );
-}
 
 function TeamCard({ teamId }: { teamId: string }) {
   const { t, lang } = useLang();
@@ -270,41 +234,12 @@ function TeamCard({ teamId }: { teamId: string }) {
         </form>
 
         {/* Invite via QR / link */}
-        <div className="mt-4 rounded-xl border border-dashed border-line p-4">
-          <div className="text-xs font-bold uppercase tracking-wide text-faint">
-            {t.teamInviteLink}
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <div className="rounded-lg bg-white p-1.5">
-              <QRCodeSVG
-                id={`qr-team-${team.id}`}
-                value={origin ? `${origin}/join?team=${team.id}` : "https://quiznight.hu"}
-                size={72}
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm text-muted">
-                {origin ? `${origin}/join?team=${team.id}` : ""}
-              </div>
-              <div className="mt-2 flex gap-2">
-                <CopyButton text={`${origin}/join?team=${team.id}`} />
-                <button
-                  onClick={() =>
-                    printQR(
-                      `qr-team-${team.id}`,
-                      team.name,
-                      `${origin}/join?team=${team.id}`
-                    )
-                  }
-                  className="pill cursor-pointer border border-line bg-paper px-4 py-2 text-sm font-bold text-muted transition-colors hover:border-primary hover:text-accent"
-                >
-                  {t.printQr}
-                </button>
-              </div>
-            </div>
-          </div>
-          <p className="mt-2 text-xs text-faint">{t.teamInviteHint}</p>
-        </div>
+        <InviteLinkBlock
+          id={`qr-team-${team.id}`}
+          title={t.teamInviteLink}
+          link={origin ? `${origin}/join?team=${team.id}` : ""}
+          hint={t.teamInviteHint}
+        />
       </div>
 
       {/* Reservations */}
@@ -321,6 +256,7 @@ function TeamCard({ teamId }: { teamId: string }) {
             >
               {t.reserveCta} <ArrowRight size={14} />
             </Link>
+            <JoinByCode mode="event" extraParams={{ teamName: team.name }} />
           </div>
         ) : (
           <ul className="mt-3 space-y-2">
@@ -345,6 +281,11 @@ function TeamCard({ teamId }: { teamId: string }) {
               );
             })}
           </ul>
+        )}
+        {teamRes.length > 0 && (
+          <div className="mt-3">
+            <JoinByCode mode="event" extraParams={{ teamName: team.name }} />
+          </div>
         )}
       </div>
     </section>
@@ -543,7 +484,11 @@ function TeamsHubInner() {
 
   return (
     <AppShell>
-      <PageHead title={t.teamsHubTitle} sub={t.teamsHubSub} />
+      <PageHead
+        title={t.teamsHubTitle}
+        sub={t.teamsHubSub}
+        action={tab === "all" ? <JoinByCode mode="team" /> : undefined}
+      />
 
       <div className="mb-7 flex gap-6 border-b border-line">
         {(["mine", "all"] as const).map((k) => (

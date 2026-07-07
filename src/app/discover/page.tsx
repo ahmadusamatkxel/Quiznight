@@ -4,6 +4,7 @@ import Link from "next/link";
 import { EVENTS, evDate, evDesc, evTitle } from "@/lib/data";
 import { useLang } from "@/lib/i18n";
 import AppShell, { PageHead } from "@/components/AppShell";
+import JoinByCode from "@/components/JoinByCode";
 import {
   ArrowRight,
   Calendar,
@@ -23,7 +24,11 @@ export default function DiscoverPage() {
 
   return (
     <AppShell>
-      <PageHead title={t.discoverTitle} sub={t.discoverSub} />
+      <PageHead
+        title={t.discoverTitle}
+        sub={t.discoverSub}
+        action={<JoinByCode mode="event" />}
+      />
 
       <h2 className="display mb-4 flex items-center gap-2 text-xl font-semibold">
         <Ticket size={20} className="text-primary" /> {t.discoverAvailable}

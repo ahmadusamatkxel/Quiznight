@@ -20,7 +20,8 @@ export type Role = "playing" | "hosting";
 export type GameMember = {
   name: string;
   role: "captain" | "member";
-  via: "host" | "link" | "email";
+  via: "host" | "link" | "email" | "guest";
+  email?: string;
 };
 
 export type GameTeam = {
@@ -57,14 +58,20 @@ type HostStore = {
   gameByCode: (code: string) => HostGame | undefined;
   addTeam: (
     gameId: string,
-    t: { name: string; captainName: string; size: number }
+    t: {
+      name: string;
+      captainName: string;
+      size: number;
+      via?: GameMember["via"];
+    }
   ) => GameTeam | undefined;
   removeTeam: (gameId: string, teamId: string) => void;
   addMember: (
     gameId: string,
     teamId: string,
     name: string,
-    via?: GameMember["via"]
+    via?: GameMember["via"],
+    email?: string
   ) => void;
   removeMember: (gameId: string, teamId: string, name: string) => void;
   assignCaptain: (gameId: string, teamId: string, name: string) => void;
@@ -140,7 +147,9 @@ export function HostProvider({ children }: { children: React.ReactNode }) {
       size: t.size,
       code: code(),
       createdAt: new Date().toISOString(),
-      members: [{ name: t.captainName, role: "captain", via: "host" }],
+      members: [
+        { name: t.captainName, role: "captain", via: t.via ?? "host" },
+      ],
     };
     setGames((prev) =>
       prev.map((g) =>
@@ -161,7 +170,7 @@ export function HostProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addMember: HostStore["addMember"] = useCallback(
-    (gameId, teamId, name, via = "email") => {
+    (gameId, teamId, name, via = "email", email) => {
       setGames((prev) =>
         prev.map((g) =>
           g.id === gameId
@@ -176,7 +185,7 @@ export function HostProvider({ children }: { children: React.ReactNode }) {
                         ...te,
                         members: [
                           ...te.members,
-                          { name, role: "member", via },
+                          { name, role: "member", via, email },
                         ],
                       }
                     : te
