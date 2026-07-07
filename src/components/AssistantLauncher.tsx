@@ -2,7 +2,7 @@
 
 import { useAssistant } from "@/lib/assistant-context";
 import { useLang } from "@/lib/i18n";
-import { Sparkles } from "./icons";
+import { Rio } from "./icons";
 
 export default function AssistantLauncher() {
   const { open, openAssistant } = useAssistant();
@@ -17,7 +17,7 @@ export default function AssistantLauncher() {
         open ? "pointer-events-none scale-90 opacity-0" : "opacity-100"
       }`}
     >
-      <Sparkles size={20} />
+      <Rio size={22} />
       <span className="hidden text-sm sm:inline">{t.assistantName}</span>
     </button>
   );

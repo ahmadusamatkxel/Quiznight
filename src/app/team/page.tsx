@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { evDate, evTitle } from "@/lib/data";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { QRCodeSVG } from "qrcode.react";
+import { LEADERBOARD, evDate, evTitle } from "@/lib/data";
 import { useReservations } from "@/lib/store";
 import { useLang } from "@/lib/i18n";
 import AppShell, { PageHead } from "@/components/AppShell";
@@ -15,8 +17,46 @@ import {
   Pencil,
   Plus,
   Trash,
+  Users,
   X,
 } from "@/components/icons";
+
+function useOrigin() {
+  const [origin, setOrigin] = useState("");
+  useEffect(() => setOrigin(window.location.origin), []);
+  return origin;
+}
+
+function printQR(elId: string, title: string, link: string) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const w = window.open("", "_blank", "width=440,height=580");
+  if (!w) return;
+  w.document.write(
+    `<!doctype html><title>${title}</title><body style="margin:0;font-family:system-ui,sans-serif;text-align:center;padding:40px">${el.outerHTML}<h2 style="margin:20px 0 6px">${title}</h2><p style="color:#666;font-size:12px;word-break:break-all">${link}</p></body>`
+  );
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 250);
+}
+
+function CopyButton({ text }: { text: string }) {
+  const { t } = useLang();
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard?.writeText(text);
+        setDone(true);
+        setTimeout(() => setDone(false), 1500);
+      }}
+      className="pill cursor-pointer border border-line bg-paper px-4 py-2 text-sm font-bold text-muted transition-colors hover:border-primary hover:text-accent"
+    >
+      {done ? t.copied : t.copyLink}
+    </button>
+  );
+}
 
 function TeamCard({ teamId }: { teamId: string }) {
   const { t, lang } = useLang();
@@ -26,10 +66,12 @@ function TeamCard({ teamId }: { teamId: string }) {
     deleteTeam,
     addMember,
     removeMember,
+    assignCaptain,
     reservations,
     eventById,
   } = useReservations();
 
+  const origin = useOrigin();
   const team = teams.find((te) => te.id === teamId);
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(team?.name ?? "");
@@ -175,14 +217,22 @@ function TeamCard({ teamId }: { teamId: string }) {
                   </span>
                 )}
                 {m.role !== "captain" && (
-                  <button
-                    onClick={() => removeMember(team.id, m.name)}
-                    aria-label={`${t.removeMember}: ${m.name}`}
-                    title={t.removeMember}
-                    className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-faint transition-colors hover:bg-coral-soft hover:text-coral-text"
-                  >
-                    <X size={15} />
-                  </button>
+                  <>
+                    <button
+                      onClick={() => assignCaptain(team.id, m.name)}
+                      className="pill cursor-pointer border border-line px-2.5 py-1 text-xs font-bold text-muted transition-colors hover:border-primary hover:text-accent"
+                    >
+                      {t.makeCaptain}
+                    </button>
+                    <button
+                      onClick={() => removeMember(team.id, m.name)}
+                      aria-label={`${t.removeMember}: ${m.name}`}
+                      title={t.removeMember}
+                      className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-faint transition-colors hover:bg-coral-soft hover:text-coral-text"
+                    >
+                      <X size={15} />
+                    </button>
+                  </>
                 )}
               </span>
             </li>
@@ -218,6 +268,43 @@ function TeamCard({ teamId }: { teamId: string }) {
             <Plus size={15} /> {t.addMember}
           </button>
         </form>
+
+        {/* Invite via QR / link */}
+        <div className="mt-4 rounded-xl border border-dashed border-line p-4">
+          <div className="text-xs font-bold uppercase tracking-wide text-faint">
+            {t.teamInviteLink}
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <div className="rounded-lg bg-white p-1.5">
+              <QRCodeSVG
+                id={`qr-team-${team.id}`}
+                value={origin ? `${origin}/join?team=${team.id}` : "https://quiznight.hu"}
+                size={72}
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm text-muted">
+                {origin ? `${origin}/join?team=${team.id}` : ""}
+              </div>
+              <div className="mt-2 flex gap-2">
+                <CopyButton text={`${origin}/join?team=${team.id}`} />
+                <button
+                  onClick={() =>
+                    printQR(
+                      `qr-team-${team.id}`,
+                      team.name,
+                      `${origin}/join?team=${team.id}`
+                    )
+                  }
+                  className="pill cursor-pointer border border-line bg-paper px-4 py-2 text-sm font-bold text-muted transition-colors hover:border-primary hover:text-accent"
+                >
+                  {t.printQr}
+                </button>
+              </div>
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-faint">{t.teamInviteHint}</p>
+        </div>
       </div>
 
       {/* Reservations */}
@@ -333,29 +420,158 @@ function CreateTeamCard() {
   );
 }
 
-export default function MyTeamPage() {
+/* ---------- My team tab ---------- */
+
+function MyTeamPanel() {
   const { t } = useLang();
   const { teams, hydrated } = useReservations();
 
+  if (!hydrated) {
+    return (
+      <div className="h-60 animate-pulse rounded-2xl bg-line/60" aria-label="Loading" />
+    );
+  }
   return (
-    <AppShell>
-      <PageHead title={t.teamTitle} sub={t.teamSub} />
-
-      {!hydrated ? (
-        <div className="h-60 animate-pulse rounded-2xl bg-line/60" aria-label="Loading" />
-      ) : (
-        <div className="space-y-5">
-          {teams.length === 0 && (
-            <div className="rounded-2xl border border-line bg-paper px-6 py-8 text-center text-muted">
-              {t.noTeams}
-            </div>
-          )}
-          {teams.map((team) => (
-            <TeamCard key={team.id} teamId={team.id} />
-          ))}
-          <CreateTeamCard />
+    <div className="space-y-5">
+      {teams.length === 0 && (
+        <div className="rounded-2xl border border-line bg-paper px-6 py-8 text-center text-muted">
+          {t.noTeams}
         </div>
       )}
+      {teams.map((team) => (
+        <TeamCard key={team.id} teamId={team.id} />
+      ))}
+      <CreateTeamCard />
+    </div>
+  );
+}
+
+/* ---------- All teams tab ---------- */
+
+function AllTeamsPanel() {
+  const { t } = useLang();
+  const { teams } = useReservations();
+  const [query, setQuery] = useState("");
+  const [requested, setRequested] = useState<string[]>([]);
+
+  const mineNames = new Set(teams.map((te) => te.name.toLowerCase()));
+  const allTeams = [
+    ...teams.map((te) => ({ name: te.name, mine: true })),
+    ...LEADERBOARD.filter((l) => !mineNames.has(l.team.toLowerCase())).map(
+      (l) => ({ name: l.team, mine: false })
+    ),
+  ];
+  const total = allTeams.length;
+  const shown = allTeams.filter((te) =>
+    te.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <label htmlFor="team-search" className="sr-only">
+          {t.searchTeams}
+        </label>
+        <input
+          id="team-search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t.searchTeams}
+          className="h-12 w-full max-w-xs rounded-xl border border-line bg-paper px-4 text-[15px] outline-none transition-colors focus:border-primary"
+        />
+        <span className="pill bg-primary-soft px-3 py-1.5 text-sm font-bold text-accent">
+          {total} {t.teamsWord}
+        </span>
+      </div>
+
+      <ul className="mt-6 space-y-2.5">
+        {shown.map((team) => {
+          const isRequested = requested.includes(team.name);
+          return (
+            <li
+              key={team.name}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-paper px-5 py-3.5"
+            >
+              <span className="inline-flex min-w-0 items-center gap-3 font-semibold">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary-soft text-sm font-bold text-accent">
+                  {team.name[0]}
+                </span>
+                <span className="truncate">{team.name}</span>
+                {team.mine && (
+                  <span className="pill bg-mint/40 px-2.5 py-0.5 text-xs font-bold text-mint-dark">
+                    {t.yourTeamBadge}
+                  </span>
+                )}
+              </span>
+              {!team.mine && (
+                <button
+                  onClick={() =>
+                    !isRequested && setRequested((r) => [...r, team.name])
+                  }
+                  disabled={isRequested}
+                  className={`pill cursor-pointer px-4 py-2 text-sm font-bold transition-colors ${
+                    isRequested
+                      ? "bg-mint/40 text-mint-dark"
+                      : "border-2 border-primary text-accent hover:bg-primary hover:text-white"
+                  }`}
+                >
+                  {isRequested ? (
+                    t.requested
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Users size={14} /> {t.requestJoin}
+                    </span>
+                  )}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/* ---------- Combined hub with tabs ---------- */
+
+function TeamsHubInner() {
+  const { t } = useLang();
+  const params = useSearchParams();
+  const [tab, setTab] = useState<"mine" | "all">(
+    params.get("tab") === "all" ? "all" : "mine"
+  );
+
+  return (
+    <AppShell>
+      <PageHead title={t.teamsHubTitle} sub={t.teamsHubSub} />
+
+      <div className="mb-7 flex gap-6 border-b border-line">
+        {(["mine", "all"] as const).map((k) => (
+          <button
+            key={k}
+            onClick={() => setTab(k)}
+            aria-current={tab === k ? "page" : undefined}
+            className={`relative -mb-px cursor-pointer pb-3 text-sm font-bold transition-colors ${
+              tab === k ? "text-ink" : "text-muted hover:text-ink"
+            }`}
+          >
+            {k === "mine" ? t.tabMyTeam : t.tabAllTeams}
+            {tab === k && (
+              <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary" />
+            )}
+          </button>
+        ))}
+      </div>
+
+      {tab === "mine" ? <MyTeamPanel /> : <AllTeamsPanel />}
     </AppShell>
+  );
+}
+
+export default function TeamsHubPage() {
+  return (
+    <Suspense fallback={null}>
+      <TeamsHubInner />
+    </Suspense>
   );
 }

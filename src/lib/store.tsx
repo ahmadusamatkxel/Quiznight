@@ -31,6 +31,7 @@ type Store = {
   deleteTeam: (id: string) => void;
   addMember: (teamId: string, name: string) => void;
   removeMember: (teamId: string, memberName: string) => void;
+  assignCaptain: (teamId: string, memberName: string) => void;
   hydrated: boolean;
 };
 
@@ -136,6 +137,24 @@ export function ReservationProvider({
     );
   }, []);
 
+  const assignCaptain = useCallback((teamId: string, memberName: string) => {
+    setTeams((prev) =>
+      prev.map((t) =>
+        t.id === teamId
+          ? {
+              ...t,
+              members: t.members.map((m) => ({
+                ...m,
+                role: m.name === memberName ? "captain" : "member",
+                // a promoted member is active on the team
+                status: m.name === memberName ? "active" : m.status,
+              })),
+            }
+          : t
+      )
+    );
+  }, []);
+
   const addReservation = useCallback(
     (r: Omit<Reservation, "id" | "createdAt">) => {
       const full: Reservation = {
@@ -178,6 +197,7 @@ export function ReservationProvider({
         deleteTeam,
         addMember,
         removeMember,
+        assignCaptain,
         hydrated,
       }}
     >

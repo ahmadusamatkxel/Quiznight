@@ -92,7 +92,7 @@ const COPY = {
     goingTo: (dest: string) => `Sure — taking you to ${dest}.`,
     alreadyHere: "You're already on this page 🙂 — anything you'd like to do here?",
     capabilities:
-      "I'm your QuizNight assistant. I can reserve a table for you, get you around — the leaderboard, your team, upcoming quiz nights, badges, news — and explain how things work. Just tell me what you need.",
+      "I'm **Rio**, your QuizNight partner. I can reserve a table for you, get you around — the leaderboard, your team, upcoming quiz nights, badges, news — and explain how things work. Just tell me what you need.",
     free:
       "Every quiz night is **free** to join — you reserve a table, not a ticket. Winners take bar coupons and prizes.",
     scoring:
@@ -100,7 +100,7 @@ const COPY = {
     fallback:
       "I can reserve a table, take you somewhere, or explain how QuizNight works. Try “book the A38 quiz for Dexx, 4 of us”, “go to the leaderboard”, or “how does scoring work?”",
     greeting:
-      "Hi Dexter! 👋 I'm your QuizNight assistant. I can reserve a table for you, take you anywhere in the app, or explain how things work. What do you need?",
+      "Hi Dexter! 👋 I'm **Rio**, your QuizNight partner. I can reserve a table for you, take you anywhere in the app, or explain how things work. What do you need?",
     voice: "Book the Dürer Garden July quiz for team Dexx, four of us.",
     askEvent:
       "Happy to book that. Which quiz night — **A38 (13 July)**, **Dürer Garden July (28th)**, or **Dürer August (18th)**?",
@@ -116,7 +116,7 @@ const COPY = {
     goingTo: (dest: string) => `Rendben — átviszlek ide: ${dest}.`,
     alreadyHere: "Már ezen az oldalon vagy 🙂 — szeretnél itt valamit csinálni?",
     capabilities:
-      "A QuizNight asszisztense vagyok. Lefoglalok neked asztalt, eligazítalak — toplista, csapatod, közelgő kvízestek, jelvények, hírek —, és elmagyarázom a működést. Csak mondd, mire van szükséged.",
+      "**Rio** vagyok, a QuizNight-partnered. Lefoglalok neked asztalt, eligazítalak — toplista, csapatod, közelgő kvízestek, jelvények, hírek —, és elmagyarázom a működést. Csak mondd, mire van szükséged.",
     free:
       "Minden kvízest **ingyenes** — asztalt foglalsz, nem jegyet. A győztesek kuponokat és díjakat nyernek.",
     scoring:
@@ -124,7 +124,7 @@ const COPY = {
     fallback:
       "Foglalok asztalt, elviszlek valahová, vagy elmagyarázom a QuizNight működését. Próbáld: „foglalj az A38 kvízre a Dexx csapatnak, négyen leszünk”, „vigyél a toplistára”, vagy „hogyan működik a pontozás?”",
     greeting:
-      "Szia Dexter! 👋 A QuizNight asszisztense vagyok. Lefoglalok neked asztalt, elviszlek bárhová az appban, vagy elmagyarázom a működést. Miben segíthetek?",
+      "Szia Dexter! 👋 **Rio** vagyok, a QuizNight-partnered. Lefoglalok neked asztalt, elviszlek bárhová az appban, vagy elmagyarázom a működést. Miben segíthetek?",
     voice: "Foglalj a Dürer Kert júliusi kvízre a Dexx csapatnak, négyen leszünk.",
     askEvent:
       "Szívesen lefoglalom. Melyik kvízest — **A38 (júl. 13.)**, **Dürer Kert július (28.)** vagy **Dürer augusztus (18.)**?",
@@ -142,7 +142,7 @@ const COPY = {
 const ROUTES: { re: RegExp; href: string; en: string; hu: string }[] = [
   { re: /(leaderboard|top ?list|ranking|standings?|rank\b|toplist[aá]|rangsor|helyez)/u, href: "/leaderboard", en: "the leaderboard", hu: "a toplistára" },
   { re: /(my team|manage.*team|my roster|csapatom|saj[aá]t csapat)/u, href: "/team", en: "your team", hu: "a csapatodhoz" },
-  { re: /(other teams|join.*team|find.*team|browse.*teams?|\bteams\b|csapatok|csatlakoz)/u, href: "/teams", en: "the Teams page", hu: "a Csapatok oldalra" },
+  { re: /(other teams|join.*team|find.*team|browse.*teams?|\bteams\b|csapatok|csatlakoz)/u, href: "/team?tab=all", en: "all teams", hu: "az összes csapathoz" },
   { re: /(badge|achievement|jelv[eé]ny|kit[uü]ntet)/u, href: "/badges", en: "your badges", hu: "a Jelvényekhez" },
   { re: /(news|announcement|what.?s new|h[ií]rek?|[uú]jdons[aá]g)/u, href: "/news", en: "the News", hu: "a Hírekhez" },
   { re: /(faq|question|g[yi]ik)/u, href: "/faq", en: "the FAQ", hu: "a GYIK-hez" },

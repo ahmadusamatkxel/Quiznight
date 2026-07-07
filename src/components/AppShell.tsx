@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { LangSwitch, useLang, type Strings } from "@/lib/i18n";
 import { ThemeToggle } from "@/lib/theme";
+import { useHost } from "@/lib/host";
 import { USER } from "@/lib/data";
 import SiteFooter from "./SiteFooter";
 import {
   Beer,
   Compass,
   Check,
-  Crown,
   MessageCircle,
-  Sparkles,
+  Newspaper,
   Ticket,
   Trophy,
   Users,
@@ -31,11 +31,10 @@ type NavItem = {
 const NAV: NavItem[] = [
   { key: "navHome", href: "/", icon: <Beer size={17} /> },
   { key: "navEvents", href: "/discover", icon: <Compass size={17} /> },
-  { key: "navMyTeam", href: "/team", icon: <Crown size={17} /> },
-  { key: "navTeams", href: "/teams", icon: <Users size={17} /> },
+  { key: "navMyTeam", href: "/team", icon: <Users size={17} /> },
   { key: "navLeaderboard", href: "/leaderboard", icon: <Trophy size={17} /> },
   { key: "navBadges", href: "/badges", icon: <Check size={17} /> },
-  { key: "navNews", href: "/news", icon: <Sparkles size={17} /> },
+  { key: "navNews", href: "/news", icon: <Newspaper size={17} /> },
   { key: "navFaq", href: "/faq", icon: <MessageCircle size={17} /> },
   { key: "navUniqueEvents", icon: <Wand size={17} />, soon: true },
   { key: "navProducts", icon: <Ticket size={17} />, soon: true },
@@ -44,6 +43,57 @@ const NAV: NavItem[] = [
   { key: "navQuestion", icon: <MessageCircle size={17} />, soon: true },
   { key: "navPoints", icon: <Check size={17} />, soon: true },
 ];
+
+const HOST_NAV: NavItem[] = [
+  { key: "navHome", href: "/", icon: <Beer size={17} /> },
+  { key: "navHostGames", href: "/host", icon: <Ticket size={17} /> },
+  { key: "navLeaderboard", href: "/leaderboard", icon: <Trophy size={17} /> },
+  { key: "navBadges", href: "/badges", icon: <Check size={17} /> },
+  { key: "navNews", href: "/news", icon: <Newspaper size={17} /> },
+  { key: "navFaq", href: "/faq", icon: <MessageCircle size={17} /> },
+];
+
+function isHostRoute(pathname: string) {
+  return pathname === "/host" || pathname.startsWith("/host/");
+}
+
+/** Fiverr-style Playing ⇄ Hosting switch. */
+function RoleSwitch() {
+  const { t } = useLang();
+  const { role, setRole } = useHost();
+  const router = useRouter();
+  const pathname = usePathname();
+  const hosting = role === "hosting" || isHostRoute(pathname);
+
+  const go = (r: "playing" | "hosting") => {
+    setRole(r);
+    router.push(r === "hosting" ? "/host" : "/");
+  };
+
+  return (
+    <div className="flex rounded-full border border-line bg-bg p-0.5 text-xs font-bold">
+      <button
+        onClick={() => go("playing")}
+        aria-pressed={!hosting}
+        type="button"
+        className={`pill cursor-pointer px-3 py-1.5 transition-colors ${
+          !hosting ? "bg-primary text-white" : "text-muted hover:text-ink"
+        }`}
+      >
+        {t.rolePlaying}
+      </button>
+      <button
+        onClick={() => go("hosting")}
+        aria-pressed={hosting}
+        className={`pill cursor-pointer px-3 py-1.5 transition-colors ${
+          hosting ? "bg-primary text-white" : "text-muted hover:text-ink"
+        }`}
+      >
+        {t.roleHosting}
+      </button>
+    </div>
+  );
+}
 
 function Logo() {
   return (
@@ -71,7 +121,9 @@ function SidebarContent({
   onClose?: () => void;
 }) {
   const { t } = useLang();
+  const { role } = useHost();
   const pathname = usePathname();
+  const nav = role === "hosting" || isHostRoute(pathname) ? HOST_NAV : NAV;
 
   return (
     <div className="flex h-full flex-col">
@@ -88,11 +140,9 @@ function SidebarContent({
         )}
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-4">
-        {NAV.map((item) => {
+        {nav.map((item) => {
           const label = t[item.key] as string;
-          const active =
-            item.href === pathname ||
-            (item.href === "/discover" && pathname === "/reserve");
+          const active = item.href === pathname;
           if (item.soon) {
             return (
               <div
@@ -137,8 +187,18 @@ function SidebarContent({
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { t } = useLang();
+  const { role, setRole } = useHost();
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [desktopOpen, setDesktopOpen] = useState(true);
+
+  // Landing on a host route puts you in Hosting mode so the nav + switch stay
+  // in sync. Keyed on pathname only — depending on `role` would re-fire the
+  // moment the switch sets "playing" (while still on /host) and revert it,
+  // which made switching to Playing take two clicks.
+  useEffect(() => {
+    if (isHostRoute(pathname)) setRole("hosting");
+  }, [pathname, setRole]);
 
   const toggleSidebar = () => {
     if (typeof window !== "undefined" && window.innerWidth >= 1024) {
@@ -200,6 +260,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </span>
             </div>
             <div className="flex items-center gap-2.5">
+              <RoleSwitch />
               <LangSwitch />
               <ThemeToggle />
               <span className="hidden text-sm font-semibold text-muted sm:block">

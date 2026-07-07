@@ -21,7 +21,6 @@ import {
 import type { FlowState } from "@/lib/assistant";
 import { useReservations } from "@/lib/store";
 import { useLang } from "@/lib/i18n";
-import AppShell from "@/components/AppShell";
 import AiBookNudge from "@/components/AiBookNudge";
 import {
   ArrowLeft,
@@ -34,6 +33,7 @@ import {
   Plus,
   Trophy,
   Users,
+  X,
 } from "@/components/icons";
 
 /* ---------- Step chrome (Tally-style) ---------- */
@@ -441,6 +441,10 @@ function ReserveFlow({ initialEventId }: { initialEventId: string | null }) {
     [addReservation, createTeam]
   );
 
+  // The first step the wizard opened on (0 from Home, 1 when an event was
+  // pre-picked on Discover). Back exits the wizard from there.
+  const entryStep = preselected ? 1 : 0;
+
   const next = () => {
     if (state.step === 3) {
       confirm(state);
@@ -449,37 +453,49 @@ function ReserveFlow({ initialEventId }: { initialEventId: string | null }) {
       setState((s) => ({ ...s, step: Math.min(4, s.step + 1) }));
     }
   };
+  const exit = () => router.back();
   const back = () => {
-    // Steps 0 (event) and 1 (team) return to the Discover list to change event.
-    if (state.step <= 1) router.push("/discover");
+    if (state.step <= entryStep) exit();
     else setState((s) => ({ ...s, step: Math.max(0, s.step - 1) }));
   };
 
   return (
-    <AppShell>
-      {/* Wizard toolbar — Back · progress · AI assist (lives in the content, so the shell stays put) */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-4">
-          {state.step < 4 && (
-            <button
-              onClick={back}
-              className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-muted transition-colors hover:text-ink"
-            >
-              <ArrowLeft size={16} /> {t.back}
-            </button>
-          )}
-          <div className="hidden sm:block">
-            <Progress step={state.step} />
+    // Full-screen focused wizard — deliberately outside the app shell, so there
+    // is no sidebar to mis-highlight and the task has the whole screen.
+    <div className="flex min-h-dvh flex-col bg-bg">
+      {/* Top bar — Back + step progress aligned to the body column, Close on the right */}
+      <header className="sticky top-0 z-10 border-b border-line bg-paper/90 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-3 px-5 py-3.5">
+          <div className="flex items-center gap-4">
+            {state.step < 4 && (
+              <button
+                onClick={back}
+                className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-bold text-muted transition-colors hover:text-ink"
+              >
+                <ArrowLeft size={16} /> {t.back}
+              </button>
+            )}
+            {state.step < 4 && (
+              <div className="hidden sm:block">
+                <Progress step={state.step} />
+              </div>
+            )}
           </div>
+          <button
+            onClick={exit}
+            aria-label={t.close}
+            className="grid h-9 w-9 cursor-pointer place-items-center rounded-full text-muted transition-colors hover:bg-bg hover:text-ink"
+          >
+            <X size={18} />
+          </button>
         </div>
-      </div>
+      </header>
 
-      {state.step < 4 && <AiBookNudge />}
+      {/* Body */}
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10 sm:py-12">
+        {state.step < 4 && <AiBookNudge />}
+        {state.step === 0 && <ReserveHero />}
 
-      {state.step === 0 && <ReserveHero />}
-
-      {/* Step body */}
-      <div className="mx-auto max-w-2xl">
         {state.step === 0 && (
           <EventStep
             state={state}
@@ -527,11 +543,11 @@ function ReserveFlow({ initialEventId }: { initialEventId: string | null }) {
             </span>
           </div>
         )}
-      </div>
+      </main>
 
       {/* Enter key advances */}
       <EnterKey onEnter={() => canContinue && state.step < 4 && next()} />
-    </AppShell>
+    </div>
   );
 }
 

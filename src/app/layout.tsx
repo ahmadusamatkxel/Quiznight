@@ -4,6 +4,7 @@ import "./globals.css";
 import { ReservationProvider } from "@/lib/store";
 import { LangProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme";
+import { HostProvider } from "@/lib/host";
 import { AssistantProvider } from "@/lib/assistant-context";
 import AssistantDrawer from "@/components/AssistantDrawer";
 import AssistantLauncher from "@/components/AssistantLauncher";
@@ -35,11 +36,13 @@ export default function RootLayout({
         <ThemeProvider>
           <LangProvider>
             <ReservationProvider>
-              <AssistantProvider>
-                {children}
-                <AssistantLauncher />
-                <AssistantDrawer />
-              </AssistantProvider>
+              <HostProvider>
+                <AssistantProvider>
+                  {children}
+                  <AssistantLauncher />
+                  <AssistantDrawer />
+                </AssistantProvider>
+              </HostProvider>
             </ReservationProvider>
           </LangProvider>
         </ThemeProvider>

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { EVENTS, evDate, evTitle } from "@/lib/data";
 import { useReservations } from "@/lib/store";
+import { useHost } from "@/lib/host";
 import { useLang } from "@/lib/i18n";
 import AppShell, { PageHead } from "@/components/AppShell";
+import { HostHome } from "@/components/host-ui";
 import WinnersCarousel from "@/components/WinnersCarousel";
 import {
   ArrowRight,
@@ -72,7 +74,7 @@ function EmptyState() {
         </h2>
         <p className="mx-auto mt-3 max-w-md text-white/70">{t.emptySub}</p>
         <Link
-          href="/discover"
+          href="/reserve"
           className="pill mt-8 inline-flex cursor-pointer items-center gap-2 bg-primary px-7 py-3.5 font-bold text-white transition-colors duration-200 hover:bg-primary-dark focus:outline-none focus-visible:ring-4 focus-visible:ring-mint"
         >
           {t.reserveCta} <ArrowRight size={18} />
@@ -137,7 +139,7 @@ function ReservationList() {
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <Link
-          href="/discover"
+          href="/reserve"
           className="pill inline-flex cursor-pointer items-center gap-2 bg-primary px-6 py-3 font-bold text-white transition-colors duration-200 hover:bg-primary-dark focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-soft"
         >
           {t.reserveAnother} <ArrowRight size={17} />
@@ -153,12 +155,12 @@ function ReservationList() {
   );
 }
 
-export default function Dashboard() {
+function PlayerHome() {
   const { t, lang } = useLang();
   const { reservations, hydrated } = useReservations();
 
   return (
-    <AppShell>
+    <>
       <PageHead title={t.dashTitle} sub={t.dashSub} />
 
       {!hydrated ? (
@@ -200,6 +202,15 @@ export default function Dashboard() {
           ))}
         </div>
       </section>
+    </>
+  );
+}
+
+export default function Dashboard() {
+  const { role } = useHost();
+  return (
+    <AppShell>
+      {role === "hosting" ? <HostHome /> : <PlayerHome />}
     </AppShell>
   );
 }

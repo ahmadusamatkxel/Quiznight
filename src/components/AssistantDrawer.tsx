@@ -6,17 +6,7 @@ import { useAssistant } from "@/lib/assistant-context";
 import { platformChips, platformVoiceUtterance } from "@/lib/assistant-platform";
 import { EVENTS, evDate, evTitle } from "@/lib/data";
 import { useLang } from "@/lib/i18n";
-import {
-  Calendar,
-  Check,
-  MapPin,
-  MessageCircle,
-  Mic,
-  Send,
-  Sparkles,
-  Users,
-  X,
-} from "./icons";
+import { Calendar, Check, MapPin, Mic, Rio, Send, Users, X } from "./icons";
 
 /** Minimal **bold** / *italic* renderer (no markdown dependency). */
 function Rich({ text }: { text: string }) {
@@ -51,7 +41,6 @@ export default function AssistantDrawer() {
   } = useAssistant();
   const { lang, t } = useLang();
   const pathname = usePathname();
-  const [mode, setMode] = useState<"chat" | "voice">("chat");
   const [input, setInput] = useState("");
   const [listening, setListening] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -86,27 +75,27 @@ export default function AssistantDrawer() {
   const pendingEvent = pending ? EVENTS.find((e) => e.id === pending.eventId) : null;
 
   return (
+    // Floating, NON-modal panel — no scrim, so the page stays interactive/in focus.
     <div
       aria-hidden={!open}
-      className={`fixed inset-0 z-50 ${open ? "" : "pointer-events-none"}`}
+      className={`fixed bottom-4 right-4 left-4 z-50 sm:left-auto ${
+        open ? "" : "pointer-events-none"
+      }`}
     >
-      {/* Scrim */}
-      <div
-        onClick={closeAssistant}
-        className={`absolute inset-0 bg-ink/50 transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
-      />
-
-      {/* Drawer */}
       <aside
         role="dialog"
         aria-label={t.assistantName}
-        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-paper shadow-2xl transition-transform duration-250 ${open ? "translate-x-0" : "translate-x-full"}`}
+        className={`flex h-[min(600px,calc(100dvh-2rem))] w-full flex-col overflow-hidden rounded-3xl border border-line bg-paper shadow-2xl transition-all duration-200 sm:w-[400px] ${
+          open
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-3 opacity-0"
+        }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
           <div className="flex items-center gap-2.5">
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-white">
-              <Sparkles size={18} />
+              <Rio size={20} />
             </div>
             <div>
               <div className="display font-semibold leading-tight">
@@ -122,25 +111,6 @@ export default function AssistantDrawer() {
           >
             <X size={19} />
           </button>
-        </div>
-
-        {/* Mode toggle */}
-        <div className="flex gap-1.5 border-b border-line px-5 py-3">
-          {(["chat", "voice"] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={`pill inline-flex cursor-pointer items-center gap-1.5 px-4 py-1.5 text-sm font-bold transition-colors ${
-                mode === m
-                  ? "bg-ink text-paper"
-                  : "text-muted hover:bg-bg hover:text-ink"
-              }`}
-              aria-pressed={mode === m}
-            >
-              {m === "chat" ? <MessageCircle size={15} /> : <Mic size={15} />}
-              {m === "chat" ? t.chat : t.voice}
-            </button>
-          ))}
         </div>
 
         {/* Messages */}
@@ -256,51 +226,55 @@ export default function AssistantDrawer() {
           </>
         )}
 
-        {/* Input area */}
-        {mode === "chat" ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submit(input);
-            }}
-            className="flex items-center gap-2 border-t border-line px-4 py-3.5"
+        {/* Listening indicator */}
+        {listening && (
+          <div
+            className="px-5 pb-1 text-xs font-semibold text-coral"
+            aria-live="polite"
           >
-            <label htmlFor="assistant-input" className="sr-only">
-              {t.send}
-            </label>
-            <input
-              id="assistant-input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={t.assistantPlaceholder}
-              className="h-11 flex-1 rounded-xl border border-line bg-bg px-3.5 text-[15px] outline-none transition-colors focus:border-primary"
-            />
-            <button
-              type="submit"
-              aria-label={t.send}
-              disabled={!input.trim() || thinking}
-              className="grid h-11 w-11 cursor-pointer place-items-center rounded-xl bg-primary text-white transition-colors hover:bg-primary-dark disabled:cursor-default disabled:opacity-40"
-            >
-              <Send size={17} />
-            </button>
-          </form>
-        ) : (
-          <div className="border-t border-line px-5 py-6 text-center">
-            <button
-              onClick={pressMic}
-              aria-label={listening ? t.listening : t.assistantVoicePrompt}
-              className={`mx-auto grid h-20 w-20 cursor-pointer place-items-center rounded-full text-white transition-transform active:scale-95 ${
-                listening ? "mic-pulse bg-coral" : "bg-primary hover:bg-primary-dark"
-              }`}
-            >
-              <Mic size={30} />
-            </button>
-            <div className="mt-3 text-sm font-semibold text-muted" aria-live="polite">
-              {listening ? t.listening : t.assistantVoicePrompt}
-            </div>
-            <div className="mt-1 text-xs text-faint">{t.assistantVoiceNote}</div>
+            {t.listening}
           </div>
         )}
+
+        {/* Input bar — voice (always active) + text + send (disabled when empty) */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit(input);
+          }}
+          className="flex items-center gap-2 border-t border-line px-3 py-3"
+        >
+          <button
+            type="button"
+            onClick={pressMic}
+            aria-label={listening ? t.listening : t.assistantVoicePrompt}
+            className={`grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-xl transition-colors ${
+              listening
+                ? "mic-pulse bg-coral text-white"
+                : "bg-bg text-primary hover:bg-primary-soft"
+            }`}
+          >
+            <Mic size={18} />
+          </button>
+          <label htmlFor="assistant-input" className="sr-only">
+            {t.send}
+          </label>
+          <input
+            id="assistant-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={t.assistantPlaceholder}
+            className="h-11 flex-1 rounded-xl border border-line bg-bg px-3.5 text-[15px] outline-none transition-colors focus:border-primary"
+          />
+          <button
+            type="submit"
+            aria-label={t.send}
+            disabled={!input.trim() || thinking}
+            className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-xl bg-primary text-white transition-colors hover:bg-primary-dark disabled:cursor-default disabled:opacity-40"
+          >
+            <Send size={17} />
+          </button>
+        </form>
       </aside>
     </div>
   );
